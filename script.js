@@ -465,23 +465,34 @@ function initTerminal(){
 
     var i = 0;
     (function type(){
-      textSpan.textContent = script.slice(0, i);
-      i++;
-      if(i <= script.length){
-        var ch = script[i-1];
-        var delay = (ch === '\n') ? 90 : (Math.random()*18+14);
-        setTimeout(type, delay);
-      } else {
+    textSpan.textContent = script.slice(0, i++);
+    if(i <= script.length){
+        setTimeout(type, 2);
+    }else{
         caret.style.display = 'none';
         if(reveal) reveal.classList.add('show');
-      }
-    })();
+    }
+})();
   }
 
   var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting) play(); });
-  }, { threshold:0.35 });
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      play();
+      io.unobserve(entry.target);
+    }
+  });
+},{
+  threshold:0.05,
+  rootMargin:"0px 0px -15% 0px"
+});
   io.observe(document.getElementById('who-am-i'));
+    // Mobile fallback
+  setTimeout(function () {
+    if (window.innerWidth <= 768 && !played) {
+      play();
+    }
+  }, 700);
 }
 
 /* ============================================================
