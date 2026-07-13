@@ -1585,3 +1585,226 @@ footer{
 .achv-grid{
   margin-top:64px;
 }
+
+/* ============================================================
+   ENHANCEMENT PACK — signal-flow atmosphere, glitch identity,
+   live-current controls, cursor sparks
+   ============================================================ */
+
+/* --- Ambient signal-trace background, spans the whole page --- */
+#bgSignalCanvas{
+  position:fixed; inset:0; z-index:0;
+  width:100%; height:100%;
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* --- Cursor spark trail --- */
+#cursorSparkCanvas{
+  position:fixed; inset:0; z-index:996;
+  width:100%; height:100%;
+  pointer-events:none;
+}
+@media (max-width:860px), (hover:none) and (pointer:coarse){
+  #cursorSparkCanvas{ display:none; }
+}
+
+/* --- Hero name: RGB-split glitch identity mark --- */
+.glitch-text{
+  position:relative;
+  display:inline-block;
+}
+.glitch-text::before,
+.glitch-text::after{
+  content:attr(data-text);
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  opacity:0;
+  background:inherit;
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+.glitch-text::before{
+  color:var(--cyan);
+  transform:translate(0,0);
+  mix-blend-mode:screen;
+}
+.glitch-text::after{
+  color:var(--violet);
+  transform:translate(0,0);
+  mix-blend-mode:screen;
+}
+.glitch-text:hover::before{
+  opacity:.85;
+  animation:glitchSlice 420ms steps(2,end) infinite;
+}
+.glitch-text:hover::after{
+  opacity:.85;
+  animation:glitchSlice 420ms steps(2,end) infinite reverse;
+}
+@keyframes glitchSlice{
+  0%{ transform:translate(0,0); clip-path:inset(0 0 88% 0); }
+  20%{ transform:translate(-3px,1px); clip-path:inset(20% 0 60% 0); }
+  40%{ transform:translate(3px,-1px); clip-path:inset(50% 0 20% 0); }
+  60%{ transform:translate(-2px,0); clip-path:inset(75% 0 5% 0); }
+  80%{ transform:translate(2px,1px); clip-path:inset(10% 0 70% 0); }
+  100%{ transform:translate(0,0); clip-path:inset(0 0 88% 0); }
+}
+@media (prefers-reduced-motion: reduce){
+  .glitch-text::before,.glitch-text::after{ display:none; }
+}
+
+/* --- Live-current animated border on primary CTAs --- */
+.glow-btn.magnetic,
+.ghost-btn.magnetic{ position:relative; z-index:0; isolation:isolate; }
+.glow-btn::before,
+.ghost-btn::before{
+  content:'';
+  position:absolute; inset:-1px;
+  border-radius:inherit;
+  padding:1px;
+  background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--copper), var(--cyan));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:0;
+  transition:opacity .35s var(--ease-out);
+  animation:currentSpin 3.2s linear infinite;
+  pointer-events:none;
+  z-index:-1;
+}
+.glow-btn:hover::before,
+.ghost-btn:hover::before{ opacity:1; }
+@keyframes currentSpin{ to{ transform:rotate(360deg); } }
+
+/* --- Section index: scan-in reveal --- */
+.section-index{
+  position:relative;
+  overflow:hidden;
+}
+.section-index::after{
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:100%;
+  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+  transform:translateX(-120%);
+  opacity:0;
+}
+.reveal-in .section-index::after,
+.section-head.in .section-index::after{
+  animation:scanSweep 900ms var(--ease-out) both;
+}
+@keyframes scanSweep{
+  0%{ transform:translateX(-120%); opacity:.9; }
+  100%{ transform:translateX(120%); opacity:0; }
+}
+
+/* --- Card glare sweep, layered on top of existing tilt/glow --- */
+.p-card, .cert-card, .terminal-window, .leadership-card, .cap-card{
+  position:relative;
+  overflow:hidden;
+}
+.p-card::before, .cert-card::before, .cap-card::before{
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(160px circle at var(--px,50%) var(--py,50%), rgba(234,240,247,0.10), transparent 55%);
+  opacity:0;
+  transition:opacity .4s var(--ease-out);
+  pointer-events:none;
+  z-index:1;
+}
+.p-card:hover::before, .cert-card:hover::before, .cap-card:hover::before{ opacity:1; }
+
+/* --- Depth: gentle floating idle motion for hero core --- */
+@media (prefers-reduced-motion: no-preference){
+  #hero3d-canvas{ animation:heroFloat 7s ease-in-out infinite; }
+}
+@keyframes heroFloat{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-10px); }
+}
+
+/* --- Achievement numbers: subtle 3D pop on view --- */
+.achv-cell{ perspective:600px; }
+.achv-num{ transition:transform .5s var(--ease-out); transform-style:preserve-3d; }
+.achv-cell:hover .achv-num{ transform:rotateX(8deg) translateZ(6px); color:var(--cyan); }
+
+/* ============================================================
+   ENHANCEMENT PACK 2 — decrypt text, radar nav, hero parallax,
+   chromatic click-burst, holographic tag sheen
+   ============================================================ */
+
+/* --- Section labels: matrix-style decrypt-in (driven by JS) --- */
+.section-label.decrypting{ color:var(--cyan); }
+.section-label{ font-variant-numeric:tabular-nums; }
+
+/* --- Nav rail: radar ping ring on hover/active --- */
+.nav-rail a::before{
+  content:'';
+  position:absolute; inset:-7px;
+  border-radius:50%;
+  border:1px solid var(--cyan);
+  opacity:0;
+  transform:scale(0.4);
+  pointer-events:none;
+}
+.nav-rail a:hover::before{ animation:radarPing 900ms var(--ease-out); }
+.nav-rail a.active::before{ animation:radarPing 1.6s ease-out infinite; }
+@keyframes radarPing{
+  0%{ transform:scale(0.4); opacity:.7; }
+  100%{ transform:scale(2.4); opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .nav-rail a::before{ display:none; }
+}
+
+/* --- Hero content: cursor-reactive 3D parallax tilt --- */
+#hero{ perspective:1400px; }
+.hero-content{
+  transform:rotateX(var(--tiltY,0deg)) rotateY(var(--tiltX,0deg)) translateZ(0);
+  transform-style:preserve-3d;
+  transition:transform .5s var(--ease-out);
+  will-change:transform;
+}
+.hero-eyebrow, .role-cycler{ transform:translateZ(24px); }
+.hero-title{ transform:translateZ(40px); }
+@media (max-width:860px), (hover:none) and (pointer:coarse){
+  .hero-content{ transform:none !important; }
+}
+
+/* --- CTA buttons: chromatic click burst --- */
+.glow-btn, .ghost-btn{ isolation:isolate; }
+.btn-burst{
+  position:absolute;
+  width:14px; height:14px;
+  left:0; top:0;
+  border-radius:50%;
+  background:radial-gradient(circle, var(--cyan) 0%, var(--violet) 45%, transparent 72%);
+  transform:translate(-50%,-50%) scale(0);
+  opacity:.9;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  z-index:2;
+  animation:btnBurstOut 620ms var(--ease-out) forwards;
+}
+@keyframes btnBurstOut{
+  0%{ transform:translate(-50%,-50%) scale(0); opacity:.9; }
+  70%{ opacity:.5; }
+  100%{ transform:translate(-50%,-50%) scale(9); opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .btn-burst{ display:none; }
+}
+
+/* --- Tags: holographic sheen sweep on hover --- */
+.tag{ position:relative; overflow:hidden; }
+.tag::after{
+  content:'';
+  position:absolute; top:0; left:-60%;
+  width:40%; height:100%;
+  background:linear-gradient(115deg, transparent, rgba(234,240,247,0.35), transparent);
+  transform:skewX(-18deg);
+  transition:left .55s var(--ease-out);
+  pointer-events:none;
+}
+.tag:hover::after{ left:120%; }

@@ -1225,6 +1225,244 @@ function initCertModal(){
 }
 
 /* ============================================================
+   AMBIENT SIGNAL BACKGROUND — whole-page drifting node network,
+   themed like a live PCB / telemetry mesh, sits behind everything
+   ============================================================ */
+function initBgSignal(){
+  var canvas = document.getElementById('bgSignalCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var w, h, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var nodes = [];
+  var COUNT;
+
+  function resize(){
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    COUNT = Math.max(18, Math.min(46, Math.round((w*h)/42000)));
+    nodes = [];
+    for(var i=0;i<COUNT;i++){
+      nodes.push({
+        x: Math.random()*w, y: Math.random()*h,
+        vx: (Math.random()-0.5)*0.18, vy: (Math.random()-0.5)*0.18,
+        r: 1 + Math.random()*1.4
+      });
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  if(reduceMotion){
+    // Draw a single static frame, no animation loop.
+    drawFrame();
+    return;
+  }
+
+  function drawFrame(){
+    ctx.clearRect(0,0,w,h);
+    var linkDist = Math.min(180, w*0.14);
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      for(var j=i+1;j<nodes.length;j++){
+        var m = nodes[j];
+        var dx = n.x-m.x, dy = n.y-m.y;
+        var dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist < linkDist){
+          var alpha = (1 - dist/linkDist) * 0.14;
+          ctx.strokeStyle = 'rgba(63,224,208,'+alpha+')';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(n.x,n.y); ctx.lineTo(m.x,m.y);
+          ctx.stroke();
+        }
+      }
+    }
+    for(var k=0;k<nodes.length;k++){
+      var p = nodes[k];
+      ctx.fillStyle = 'rgba(139,127,255,0.45)';
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function step(){
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      n.x += n.vx; n.y += n.vy;
+      if(n.x < 0 || n.x > w) n.vx *= -1;
+      if(n.y < 0 || n.y > h) n.vy *= -1;
+    }
+    drawFrame();
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ============================================================
+   CURSOR SPARKS — small trailing particles that fizz off the
+   custom cursor ring as it moves, reinforcing the "live current"
+   identity of the design
+   ============================================================ */
+function initCursorSparks(){
+  if(isTouch) return;
+  var canvas = document.getElementById('cursorSparkCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion) return;
+
+  var w, h, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize(){
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var sparks = [];
+  var last = { x: -9999, y: -9999 };
+  var colors = ['#3fe0d0','#8b7fff','#d89159'];
+
+  window.addEventListener('mousemove', function(e){
+    var dx = e.clientX - last.x, dy = e.clientY - last.y;
+    var moved = Math.sqrt(dx*dx+dy*dy);
+    last.x = e.clientX; last.y = e.clientY;
+    if(moved < 4) return;
+    if(sparks.length > 60) return;
+    sparks.push({
+      x: e.clientX, y: e.clientY,
+      vx: (Math.random()-0.5)*0.6, vy: (Math.random()-0.5)*0.6,
+      life: 1,
+      r: 1 + Math.random()*1.6,
+      c: colors[(Math.random()*colors.length)|0]
+    });
+  });
+
+  function step(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=sparks.length-1;i>=0;i--){
+      var s = sparks[i];
+      s.x += s.vx; s.y += s.vy;
+      s.life -= 0.028;
+      if(s.life <= 0){ sparks.splice(i,1); continue; }
+      ctx.globalAlpha = Math.max(0, s.life);
+      ctx.fillStyle = s.c;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r*s.life, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ============================================================
+   SECTION LABELS — matrix-style scramble/decrypt reveal
+   The label text (e.g. "Who Am I") resolves out of random
+   glyphs the first time its section-head scrolls into view.
+   ============================================================ */
+function initDecryptLabels(){
+  if(reduceMotion) return;
+  var glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&01';
+  var els = document.querySelectorAll('.section-label');
+  if(!els.length || !('IntersectionObserver' in window)) return;
+
+  function scramble(el){
+    var final = el.textContent;
+    var len = final.length;
+    var frame = 0;
+    var maxFrames = 14;
+    el.classList.add('decrypting');
+    var timer = setInterval(function(){
+      var out = '';
+      for(var i=0;i<len;i++){
+        var ch = final[i];
+        if(ch === ' '){ out += ' '; continue; }
+        var revealAt = (i/len) * maxFrames;
+        if(frame >= revealAt + 3){ out += ch; }
+        else { out += glyphs[(Math.random()*glyphs.length)|0]; }
+      }
+      el.textContent = out;
+      frame++;
+      if(frame > maxFrames){
+        clearInterval(timer);
+        el.textContent = final;
+        el.classList.remove('decrypting');
+      }
+    }, 34);
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        scramble(entry.target);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.6 });
+
+  els.forEach(function(el){ io.observe(el); });
+}
+
+/* ============================================================
+   HERO — cursor-reactive 3D parallax tilt on the whole
+   hero-content stack (title/eyebrow/role-cycler), layered on
+   top of the existing circuit-canvas mouse tracking
+   ============================================================ */
+function initHeroTilt(){
+  if(isTouch || reduceMotion) return;
+  var hero = document.getElementById('hero');
+  var content = document.querySelector('.hero-content');
+  if(!hero || !content) return;
+  var tx = 0, ty = 0, ctx2 = 0, cty = 0;
+
+  hero.addEventListener('mousemove', function(e){
+    var rect = hero.getBoundingClientRect();
+    var px = (e.clientX - rect.left) / rect.width;
+    var py = (e.clientY - rect.top) / rect.height;
+    tx = (px - 0.5) * 10;   // rotateY range
+    ty = (0.5 - py) * 8;    // rotateX range
+  });
+  hero.addEventListener('mouseleave', function(){ tx = 0; ty = 0; });
+
+  function raf(){
+    ctx2 = lerp(ctx2, tx, 0.08);
+    cty = lerp(cty, ty, 0.08);
+    content.style.setProperty('--tiltX', ctx2.toFixed(2)+'deg');
+    content.style.setProperty('--tiltY', cty.toFixed(2)+'deg');
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+}
+
+/* ============================================================
+   CTA BUTTONS — chromatic ripple burst on click, echoing the
+   "live current" identity of the glowing conic borders
+   ============================================================ */
+function initBtnBurst(){
+  if(reduceMotion) return;
+  var btns = document.querySelectorAll('.glow-btn, .ghost-btn');
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      var rect = btn.getBoundingClientRect();
+      var burst = document.createElement('span');
+      burst.className = 'btn-burst';
+      burst.style.left = (e.clientX - rect.left) + 'px';
+      burst.style.top = (e.clientY - rect.top) + 'px';
+      btn.appendChild(burst);
+      setTimeout(function(){ burst.remove(); }, 650);
+    });
+  });
+}
+
+/* ============================================================
    APP INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', function(){
@@ -1256,6 +1494,11 @@ document.addEventListener('DOMContentLoaded', function(){
   safe(initCertModal);
   safe(initBackToTop);
   safe(initImageFallbacks);
+  safe(initBgSignal);
+  safe(initCursorSparks);
+  safe(initDecryptLabels);
+  safe(initHeroTilt);
+  safe(initBtnBurst);
 
   // Hard guarantee: whatever happens above, the loader must not sit
   // on screen forever and the hero name must always end up visible.
