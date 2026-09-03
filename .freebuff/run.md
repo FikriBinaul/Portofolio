@@ -49,3 +49,20 @@ Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','-p','3100' `
   -RedirectStandardOutput '<log>.log' -RedirectStandardError '<log>.log.err' `
   -WindowStyle Hidden -PassThru
 ```
+
+## Deploying to Cloudflare (OpenNext)
+
+The repo is set up for Cloudflare Workers via `@opennextjs/cloudflare`:
+
+- `wrangler.jsonc` — worker name `portofolio`; `WORKER_SELF_REFERENCE` must point at the worker
+  name (it previously pointed at the npm package name, which failed deploys with code 10143).
+- `open-next.config.ts` — no R2 cache (the site is fully static).
+- `.dev.vars` (gitignored, no secrets) is created locally with `NEXTJS_ENV=development`.
+
+Build + deploy (this is the command the deploy pipeline must run — NOT plain `wrangler deploy`,
+because the worker bundle only exists after the OpenNext build):
+
+```bash
+npm run deploy    # opennextjs-cloudflare build && opennextjs-cloudflare deploy
+npm run preview   # opennextjs-cloudflare build && opennextjs-cloudflare preview
+```
