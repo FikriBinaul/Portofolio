@@ -1,0 +1,29 @@
+{
+  "name": "fikri-binaul-umah-portfolio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Fikri Binaul Umah — Portfolio OS. A macOS-inspired Next.js portfolio built with Framer Motion.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
+    "framer-motion": "^11.11.13",
+    "next": "^15.1.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@types/three": "^0.185.4",
+    "typescript": "^5.7.2"
+  }
+}
