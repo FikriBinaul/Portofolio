@@ -1,0 +1,13 @@
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ReferenceError: useEffect is not defined
+    at WidgetPanel (components\WidgetPanel.tsx:26:3)
+  24 |
+  25 |   /* measure the real panel width so it hides completely */
+> 26 |   useEffect(() => {
+     |   ^
+  27 |     const measure = () => setPanelW(panelRef.current?.offsetWidth ?? OPEN_W);
+  28 |     measure();
+  29 |     window.addEventListener("resize", measure); {
+  digest: '2927528853'
+}
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.

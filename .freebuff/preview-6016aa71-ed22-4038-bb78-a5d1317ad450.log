@@ -5,14 +5,29 @@
 Using secrets defined in .dev.vars
    ▲ Next.js 15.5.25
    - Local:        http://localhost:3100
-   - Network:      http://10.13.19.97:3100
+   - Network:      http://192.168.18.107:3100
 
  ✓ Starting...
 Using secrets defined in .dev.vars
- ✓ Ready in 5.9s
+ ✓ Ready in 4.3s
  ○ Compiling / ...
- ✓ Compiled / in 5.4s (2510 modules)
- GET / 200 in 179ms
- GET / 200 in 266ms
+ ✓ Compiled / in 15.7s (2526 modules)
+ GET / 200 in 16721ms
+ GET / 200 in 208ms
+ GET / 200 in 158ms
+ GET / 200 in 206ms
+ ✓ Compiled in 1494ms (2512 modules)
+ GET / 200 in 794ms
+ ✓ Compiled in 1542ms (2512 modules)
+ GET / 200 in 930ms
+ ✓ Compiled in 1434ms (2512 modules)
+ GET / 500 in 551ms
+ ✓ Compiled in 1084ms (2512 modules)
+ GET / 200 in 533ms
  GET / 200 in 259ms
+ GET / 200 in 285ms
+ GET / 200 in 345ms
+ GET / 200 in 372ms
+ GET / 200 in 372ms
+ GET / 200 in 399ms
 [?25h

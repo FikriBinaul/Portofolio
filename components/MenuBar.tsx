@@ -12,7 +12,6 @@ const APP_ALIAS: Record<string, string> = {
 
 interface MenuBarProps {
   activeApp: string;
-  eraChip?: string;
   onOpenSpotlight: () => void;
   onOpenApp: (id: string) => void;
 }
@@ -20,7 +19,6 @@ interface MenuBarProps {
 /** Fixed macOS menu bar — clock, section menu, Spotlight trigger. */
 export default function MenuBar({
   activeApp,
-  eraChip = "2026",
   onOpenSpotlight,
   onOpenApp,
 }: MenuBarProps) {
@@ -62,9 +60,6 @@ export default function MenuBar({
       <div className="menubar-right">
         <span className="status-pill">
           <span className="dot" /> Open to opportunities
-        </span>
-        <span className="tm-pill" title="⏳ Time Machine — drag the widget on the desktop to travel years">
-          ⏳ {eraChip}
         </span>
         <button className="spotlight-trigger" onClick={onOpenSpotlight} aria-label="Open Spotlight search">
           ⌘ Search <kbd>⌘K</kbd>

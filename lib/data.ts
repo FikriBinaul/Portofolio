@@ -396,6 +396,7 @@ export const SPOTLIGHT_DESTINATIONS: SpotlightDestination[] = [
   { title: "Notes", sub: "Everything about Fikri, editable", icon: "🗒", color: "#FFD426", goto: "notes" },
   { title: "Assistant", sub: "AI that answers from his profile", icon: "✦", color: "#a78bfa", goto: "assistant" },
   { title: "Resume", sub: "Generate & save a PDF resume", icon: "▤", color: "#2dd4bf", goto: "resume" },
+  { title: "Story", sub: "The journey — from breadboard to BRIN", icon: "📖", color: "#f472b6", goto: "story" },
 ];
 
 export const DOCK_ITEMS: { id: string; icon: string; label: string; c1: string; c2: string }[] = [
@@ -415,6 +416,7 @@ export const DOCK_ITEMS: { id: string; icon: string; label: string; c1: string; 
   { id: "notes", icon: "🗒", label: "Notes", c1: "#FFD426", c2: "#d9a400" },
   { id: "assistant", icon: "✦", label: "Assistant", c1: "#a78bfa", c2: "#6d4fe0" },
   { id: "resume", icon: "▤", label: "Resume", c1: "#2dd4bf", c2: "#0f766e" },
+  { id: "story", icon: "📖", label: "Story", c1: "#f472b6", c2: "#be185d" },
 ];
 
 export const PHOTOS: { img: string; alt: string; caption: string; note: string }[] = [
@@ -441,7 +443,5 @@ export const PHOTOS: { img: string; alt: string; caption: string; note: string }
 /** Remote assets (Unsplash) used as ambient backdrops. */
 export const REMOTE_ASSETS = {
   wallpaper:
-    "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop",
-  heroOrb:
-    "https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=1400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1557683316-973673baf926?q=70&w=1600&auto=format&fit=crop",
 };

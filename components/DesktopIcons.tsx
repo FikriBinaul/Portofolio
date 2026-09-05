@@ -15,16 +15,13 @@ const ICONS: { id: string; icon: string; label: string; c1: string; c2: string }
 export default function DesktopIcons({
   onOpen,
   ready,
-  allowed,
 }: {
   onOpen: (id: string) => void;
   ready: boolean;
-  allowed?: Set<string>;
 }) {
-  const visible = allowed ? ICONS.filter((it) => allowed.has(it.id)) : ICONS;
   return (
     <div className="desktop-icons" role="toolbar" aria-label="Desktop icons">
-      {visible.map((it, i) => (
+      {ICONS.map((it, i) => (
         <motion.button
           key={it.id}
           className="dicon"

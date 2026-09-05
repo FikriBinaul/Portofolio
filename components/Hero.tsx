@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { ERA_META } from "@/lib/eras";
 import { useDesktop } from "@/components/DesktopContext";
+import { ROLES } from "@/lib/data";
 
 const entrance = {
   hidden: { opacity: 0, y: 16 },
@@ -17,22 +17,13 @@ const entrance = {
 
 /** Hero desktop — animated title, typing role cycler, stats widgets. */
 export default function Hero() {
-  const { openApp, era } = useDesktop();
+  const { openApp } = useDesktop();
   const reduce = useReducedMotion();
-  const meta = ERA_META[era];
-  const roles = meta.roles;
+  const roles = ROLES;
   const [role, setRole] = useState(roles[0]);
   const [phase, setPhase] = useState<"typing" | "erasing">("typing");
   const [charCount, setCharCount] = useState(0);
   const [roleIndex, setRoleIndex] = useState(0);
-
-  // Restart the typewriter when the Time Machine jumps years.
-  useEffect(() => {
-    setRole(roles[0]);
-    setRoleIndex(0);
-    setPhase("typing");
-    setCharCount(0);
-  }, [era]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Typing / erasing role cycler
   useEffect(() => {
@@ -90,9 +81,7 @@ export default function Hero() {
         <span className="profile-online" title="Open to opportunities" />
       </motion.div>
       <motion.div className="hero-eyebrow" variants={entrance} initial="hidden" animate="show" custom={0}>
-        {era === 2026
-          ? "// engineer_profile.init — booted"
-          : `// time_machine: snapshot ${meta.chip} — ${meta.label.toUpperCase()}`}
+        // engineer_profile.init — booted
       </motion.div>
       <motion.h1 className="hero-title" variants={entrance} initial="hidden" animate="show" custom={1}>
         <span className="sub">Sensors to systems —</span>
@@ -103,10 +92,12 @@ export default function Hero() {
         <span className="role-cursor" />
       </motion.div>
       <motion.p className="hero-lede" variants={entrance} initial="hidden" animate="show" custom={3}>
-        {meta.lede}
+        Computer Engineering student building embedded systems, IoT platforms,
+        and applied computer vision — from ESP32 firmware to research deployed
+        with BRIN and IPB University.
       </motion.p>
       <motion.div className="profile-facts" variants={entrance} initial="hidden" animate="show" custom={4}>
-        {meta.facts.map((f) => (
+        {["GPA 3.62 · IPB", "BRIN Research Intern", "8+ IoT · AI Projects", "Open to remote"].map((f) => (
           <span className="tag" key={f}>
             {f}
           </span>

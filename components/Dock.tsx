@@ -24,8 +24,6 @@ interface DockProps {
   focused: string | null;
   bounceId: string | null;
   ready: boolean;
-  /** Apps available in the current Time Machine era. */
-  allowed?: Set<string>;
 }
 
 function DockItem({
@@ -106,13 +104,10 @@ export default function Dock({
   focused,
   bounceId,
   ready,
-  allowed,
 }: DockProps) {
   const mouseX = useMotionValue(-1000);
   const springX = useSpring(mouseX, { stiffness: 250, damping: 24 });
-  const visible = allowed
-    ? DOCK_ITEMS.filter((item) => allowed.has(APP_MAP[item.id] ?? item.id))
-    : DOCK_ITEMS;
+  const visible = DOCK_ITEMS;
 
   return (
     <div className="dock-wrap">

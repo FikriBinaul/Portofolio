@@ -12,10 +12,11 @@ interface ContextMenuProps {
   onClose: () => void;
   onAbout: () => void;
   onCleanup: () => void;
+  onTour: () => void;
 }
 
 /** Right-click desktop menu. */
-export default function ContextMenu({ x, y, onClose, onAbout, onCleanup }: ContextMenuProps) {
+export default function ContextMenu({ x, y, onClose, onAbout, onCleanup, onTour }: ContextMenuProps) {
   useEffect(() => {
     const close = () => onClose();
     const esc = (e: KeyboardEvent) => {
@@ -50,6 +51,9 @@ export default function ContextMenu({ x, y, onClose, onAbout, onCleanup }: Conte
       </button>
       <button role="menuitem" onClick={() => { onCleanup(); onClose(); }}>
         <span className="ctx-ic">⤢</span> Clean Up Windows
+      </button>
+      <button role="menuitem" onClick={() => { onTour(); }}>
+        <span className="ctx-ic">📍</span> Take the tour
       </button>
       <hr />
       <button role="menuitem" onClick={() => location.reload()}>

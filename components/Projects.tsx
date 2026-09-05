@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { PROJECT_FILTERS, PROJECTS, type Project, type ProjectCategory } from "@/lib/data";
 import { useDesktop } from "@/components/DesktopContext";
-import { eraLabel, eraYear } from "@/lib/eras";
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const { openApp } = useDesktop();
@@ -71,11 +70,9 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
 /** 03 — Engineering Projects / Workshop.app */
 export default function Projects() {
-  const { era } = useDesktop();
   const [filter, setFilter] = useState<"all" | ProjectCategory>("all");
-  const eraList = PROJECTS.filter((p) => (p.year ?? 2026) <= eraYear(era));
   const visible =
-    filter === "all" ? eraList : eraList.filter((p) => p.category === filter);
+    filter === "all" ? PROJECTS : PROJECTS.filter((p) => p.category === filter);
 
   return (
     <div className="shop-frame">
@@ -95,9 +92,7 @@ export default function Projects() {
 
             <div className="shop-log">
               <span>[ LINE 03 · ASSEMBLY CELL ]</span>
-              <span>
-                STATUS: {eraList.length}/8 UNITS · SNAPSHOT {eraLabel(era)}
-              </span>
+              <span>STATUS: {PROJECTS.length}/8 UNITS · ALL SYSTEMS</span>
             </div>
 
             <div className="segctrl" role="group" aria-label="Filter projects by category">

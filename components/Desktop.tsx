@@ -5,14 +5,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import MenuBar from "@/components/MenuBar";
 import Dock from "@/components/Dock";
 import Spotlight from "@/components/Spotlight";
-import WidgetDeck from "@/components/WidgetDeck";
+import WidgetPanel from "@/components/WidgetPanel";
 import Window, { type WinState } from "@/components/Window";
 import DesktopIcons from "@/components/DesktopIcons";
 import ContextMenu from "@/components/ContextMenu";
 import BootSplash from "@/components/BootSplash";
+import TourGuide from "@/components/TourGuide";
 import { DesktopContext } from "@/components/DesktopContext";
 import { APPS, APP_BY_ID } from "@/lib/apps";
-import { appAllowed, DEFAULT_ERA, eraLabel, ERA_ORDER, type EraId } from "@/lib/eras";
 
 const MENUBAR_H = 46;
 const DOCK_H = 96;
@@ -58,13 +58,13 @@ function initWindows(): Record<string, WinState> {
 
 /** The whole operating system: windows, dock, menu bar, widgets, icons. */
 export default function Desktop() {
-  const [era, setEra] = useState<EraId>(DEFAULT_ERA);
   const [booted, setBooted] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [toast, setToast] = useState(true);
   const [wins, setWins] = useState<Record<string, WinState>>(initWindows);
   const [bounceId, setBounceId] = useState<string | null>(null);
+  const [tourKey, setTourKey] = useState(0);
   const zRef = useRef(10);
   const winsRef = useRef(wins);
   const bounceTimer = useRef<number | null>(null);
@@ -108,21 +108,25 @@ export default function Desktop() {
             x: 6,
             y: MENUBAR_H + 6,
             w: vw - 12,
-            h: Math.max(260, vh - MENUBAR_H - 92),
+            h: Math.max(220, vh - MENUBAR_H - 128),
             z: zRef.current,
           },
         };
       }
       let { x, y } = cur;
+      // Always fit the window inside the current viewport (tablets,
+      // small laptops) instead of trusting stored desktop geometry.
+      const w = Math.min(cur.w, vw - 24);
+      const h = Math.min(cur.h, vh - MENUBAR_H - DOCK_H - 80);
       if (x === 0 && y === 0) {
-        const w = Math.min(cur.w, vw - 24);
-        const h = Math.min(cur.h, vh - MENUBAR_H - DOCK_H - 80);
         const openCount = Object.values(ws).filter((s) => s.open && !s.minimized).length;
         const off = (openCount % 5) * 34;
         x = clamp(Math.round((vw - w) / 2) + off - 60, 10, Math.max(10, vw - w - 10));
         y = clamp(MENUBAR_H + 52 + off, MENUBAR_H + 10, Math.max(MENUBAR_H + 10, vh - h - DOCK_H - 40));
       }
-      return { ...ws, [id]: { ...cur, open: true, minimized: false, x, y, z: zRef.current } };
+      x = clamp(x, -(w - 160), Math.max(0, vw - 160));
+      y = clamp(y, MENUBAR_H + 6, Math.max(MENUBAR_H + 6, vh - h - DOCK_H - 30));
+      return { ...ws, [id]: { ...cur, open: true, minimized: false, x, y, w, h, z: zRef.current } };
     });
   }, []);
 
@@ -192,28 +196,6 @@ export default function Desktop() {
     });
   }, []);
 
-  // Wallpaper / OS accent retint per era snapshot.
-  useEffect(() => {
-    document.body.classList.remove(...ERA_ORDER.map((e) => `era-${e}`));
-    document.body.classList.add(`era-${era}`);
-    return () => document.body.classList.remove(`era-${era}`);
-  }, [era]);
-
-  // Time-travel closes windows for apps that hadn't shipped yet.
-  useEffect(() => {
-    setWins((ws) => {
-      let changed = false;
-      const next: Record<string, WinState> = {};
-      for (const [id, s] of Object.entries(ws)) {
-        if (s.open && !appAllowed(id, era)) {
-          next[id] = { ...s, open: false, minimized: false };
-          changed = true;
-        } else next[id] = s;
-      }
-      return changed ? next : ws;
-    });
-  }, [era]);
-
   // Cmd/Ctrl+K toggles Spotlight; Escape closes it.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -233,6 +215,15 @@ export default function Desktop() {
   useEffect(() => {
     const t = setTimeout(() => {
       setBooted(true);
+      // Only the System Profile opens at boot; everything else awaits the visitor.
+      const seenTour = (() => {
+        try {
+          return localStorage.getItem("fbu-tour-done-v1") === "1";
+        } catch {
+          return true;
+        }
+      })();
+      if (!seenTour) return; // TourGuide will demo opening apps itself
       openApp("profile");
     }, 1600);
     return () => clearTimeout(t);
@@ -244,9 +235,11 @@ export default function Desktop() {
     return () => clearTimeout(t);
   }, [booted]);
 
-  // Persist window geometry.
+  // Persist window geometry (never from a phone-sized viewport — that
+  // fullscreen layout would poison the saved desktop arrangement).
   useEffect(() => {
     if (!booted) return;
+    if (window.innerWidth < 768) return;
     try {
       const saved: Record<string, { x: number; y: number; w: number; h: number }> = {};
       for (const [id, s] of Object.entries(wins)) {
@@ -294,14 +287,8 @@ export default function Desktop() {
     [openApp]
   );
 
-  const allowedApps = useMemo(
-    () => new Set(APPS.filter((a) => appAllowed(a.id, era)).map((a) => a.id)),
-    [era]
-  );
-  const eraChip = eraLabel(era);
-
   return (
-    <DesktopContext.Provider value={{ openApp, focusApp, era, setEra }}>
+    <DesktopContext.Provider value={{ openApp, focusApp }}>
       <div
         className="desktop-stage"
         onContextMenu={(e) => {
@@ -312,16 +299,13 @@ export default function Desktop() {
       >
         <MenuBar
           activeApp={activeTitle}
-          eraChip={eraChip}
           onOpenSpotlight={() => setSpotlightOpen(true)}
           onOpenApp={navigate}
         />
 
-        <div className="desktop-widgets" aria-label="Desktop widgets">
-          <WidgetDeck />
-        </div>
+        <WidgetPanel />
 
-        <DesktopIcons onOpen={openApp} ready={booted} allowed={allowedApps} />
+        <DesktopIcons onOpen={openApp} ready={booted} />
 
         <AnimatePresence>
           {APPS.map((app) => {
@@ -352,6 +336,15 @@ export default function Desktop() {
               onClose={() => setCtx(null)}
               onAbout={() => openApp("profile")}
               onCleanup={resetLayout}
+              onTour={() => {
+                setCtx(null);
+                try {
+                  localStorage.removeItem("fbu-tour-done-v1");
+                } catch {
+                  /* ignore */
+                }
+                setTourKey((k) => k + 1);
+              }}
             />
           )}
         </AnimatePresence>
@@ -384,17 +377,16 @@ export default function Desktop() {
           focused={focusedId}
           bounceId={bounceId}
           ready={booted}
-          allowed={allowedApps}
         />
 
         <Spotlight
           open={spotlightOpen}
           onClose={() => setSpotlightOpen(false)}
           onNavigate={navigate}
-          allowed={allowedApps}
         />
 
         <AnimatePresence>{!booted && <BootSplash />}</AnimatePresence>
+        <TourGuide key={tourKey} open={booted} onOpenApp={openApp} />
       </div>
     </DesktopContext.Provider>
   );

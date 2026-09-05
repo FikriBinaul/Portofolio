@@ -16,7 +16,7 @@ const HELP = `Available commands:
   projects        project overview
   stack           tools of the trade
   contact         reach me
-  open <app>      launch an app (projects, stack, assistant, resume, terminal, calculator, snake, lab…)
+  open <app>      launch an app (story, projects, stack, assistant, resume, terminal, calculator, snake, lab…)
   ls              list installed apps
   date            current date & time
   echo <text>     repeat after me
@@ -42,6 +42,7 @@ const APPS_ALIAS: Record<string, string> = {
   ai: "assistant",
   resume: "resume",
   cv: "resume",
+  story: "story",
 };
 
 export default function AppTerminal() {

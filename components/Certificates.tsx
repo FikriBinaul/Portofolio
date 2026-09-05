@@ -5,19 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import QuickLook from "@/components/QuickLook";
 import { CERTIFICATES, type Certificate } from "@/lib/data";
-import { useDesktop } from "@/components/DesktopContext";
-import { eraLabel, eraYear } from "@/lib/eras";
-
-const certYear = (date: string) => {
-  const m = date.match(/20\d\d/);
-  const y = m ? Number(m[0]) : 0;
-  return y >= 2000 && y <= 2100 ? y : 9999;
-};
 
 /** 06 — Certificates / Finder + Quick Look */
 export default function Certificates() {
-  const { era } = useDesktop();
-  const list = CERTIFICATES.filter((c) => certYear(c.date) <= eraYear(era));
+  const list = CERTIFICATES;
   const [view, setView] = useState<"grid" | "list">("grid");
   const [selected, setSelected] = useState<Certificate | null>(null);
 
@@ -36,7 +27,7 @@ export default function Certificates() {
           </p>
           <div className="cert-head-row">
             <span style={{ fontSize: 12, color: "var(--text-faint)" }}>
-              {list.length} items · snapshot {eraLabel(era)}
+              {list.length} items
             </span>
             <div className="viewswitch" role="group" aria-label="Switch view">
               <button

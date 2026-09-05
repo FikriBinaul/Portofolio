@@ -10,7 +10,6 @@ import WidgetNotes from "@/components/WidgetNotes";
 import WidgetCalendar from "@/components/WidgetCalendar";
 import WidgetEq from "@/components/WidgetEq";
 import WidgetUptime from "@/components/WidgetUptime";
-import WidgetTimeMachine from "@/components/WidgetTimeMachine";
 import type { ObjId } from "@/components/ObjectBay3D";
 
 // 3D canvas is browser-only — never server-render it.
@@ -26,11 +25,9 @@ export default function WidgetDeck() {
   return (
     <motion.div
       className="widget-deck"
-      initial={{ opacity: 0, y: 26 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 110, damping: 20, delay: 0.6 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
     >
-      <WidgetTimeMachine />
       <WidgetClock />
       <WidgetWeather />
       <WidgetSysMon />

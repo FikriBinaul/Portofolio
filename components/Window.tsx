@@ -102,8 +102,11 @@ export default function Window({
     if (!d) return;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const nw = clamp(d.ow + e.clientX - d.px, MIN_W, vw - 16);
-    const nh = clamp(d.oh + e.clientY - d.py, MIN_H, vh - MENUBAR_H - DOCK_H - 30);
+    // Fit minimums to the viewport so resize stays usable on phones.
+    const minW = Math.min(MIN_W, Math.max(220, vw - 40));
+    const minH = Math.min(MIN_H, Math.max(180, vh - MENUBAR_H - DOCK_H - 80));
+    const nw = clamp(d.ow + e.clientX - d.px, minW, Math.max(minW, vw - 16));
+    const nh = clamp(d.oh + e.clientY - d.py, minH, Math.max(minH, vh - MENUBAR_H - DOCK_H - 30));
     onResize(nw, nh);
   };
   const onResizeUp = (e: ReactPointerEvent<HTMLDivElement>) => {

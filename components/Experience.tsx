@@ -2,15 +2,10 @@
 
 import { motion } from "framer-motion";
 import { EXPERIENCE } from "@/lib/data";
-import { useDesktop } from "@/components/DesktopContext";
-import { eraYear } from "@/lib/eras";
-
-const expYear = (date: string) => Number((date.match(/20\d\d/) ?? ["0"])[0]) || 0;
 
 /** 02 — Experience / Calendar.app */
 export default function Experience() {
-  const { era } = useDesktop();
-  const list = EXPERIENCE.filter((e) => expYear(e.date) <= eraYear(era));
+  const list = EXPERIENCE;
   return (
     <>
           <div className="section-eyebrow">

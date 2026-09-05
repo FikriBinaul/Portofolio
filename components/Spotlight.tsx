@@ -8,23 +8,15 @@ interface SpotlightProps {
   open: boolean;
   onClose: () => void;
   onNavigate: (goto: string) => void;
-  /** App destinations available in the current era. */
-  allowed?: Set<string>;
 }
 
 /** Spotlight search — Cmd/Ctrl+K across sections, projects, and easter eggs. */
-export default function Spotlight({ open, onClose, onNavigate, allowed }: SpotlightProps) {
+export default function Spotlight({ open, onClose, onNavigate }: SpotlightProps) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const list = useMemo(
-    () =>
-      allowed
-        ? SPOTLIGHT_DESTINATIONS.filter((d) => !d.goto || allowed.has(d.goto))
-        : SPOTLIGHT_DESTINATIONS,
-    [allowed]
-  );
+  const list = SPOTLIGHT_DESTINATIONS;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
